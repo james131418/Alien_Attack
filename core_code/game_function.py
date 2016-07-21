@@ -33,6 +33,7 @@ def check_keydown_events(event, f_settings, screen, fighter, bullets):
         fire_bullets(f_settings, screen, fighter, bullets)
     elif event.key == pygame.K_q:
         sys.exit()
+
 def check_keyup_events(event, fighter):
     """respond to keyreleases"""
     if event.key == pygame.K_RIGHT:
@@ -65,6 +66,11 @@ def update_bullets(bullets):
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
 
+def update_aliens(f_settings, aliens):
+    """Check if the fleet is at the edge and update aliens position"""
+    check_fleet_edges(f_settings, aliens)
+    aliens.update(f_settings)
+
 def fire_bullets(f_settings, screen, fighter, bullets):
     """Fire a bullet if the limit is not reached"""
     """Create new bullets"""
@@ -72,18 +78,53 @@ def fire_bullets(f_settings, screen, fighter, bullets):
         fired_bullet = Bullet(f_settings, screen, fighter)
         bullets.add(fired_bullet)
 
-def create_fleet(f_settings, screen, aliens):
+def create_fleet(f_settings, screen, aliens, fighter):
     """Create a full fleet of aliens"""
     """Create an alien and find the number of aliens in a row"""
     """Spaceing between aliens"""
     alien = Alien(f_settings, screen)
     alien_width = alien.rect.width
+    alien_height = alien.rect.height
+    fighter_height = fighter.rect.height
+    number_aliens_x = get_number_alien_x(f_settings, alien_width)
+    number_alien_row = get_number_alien_row(f_settings, alien_height, fighter_height)
+
+    # Create the fleet of aliens
+    for row_number in range(number_alien_row):
+        for alien_number in range(number_aliens_x):
+            create_aliens(f_settings, screen, aliens, alien_number, row_number)
+
+
+def get_number_alien_x(f_settings, alien_width):
+    """Determine the number of aliens that fit in row"""
     availabe_space_x = f_settings.screen_width - 2 * alien_width
     number_aliens_x = availabe_space_x / (2 * alien_width)
+    return number_aliens_x
 
-    # Create the first row of aliens
-    for alien_number in range(number_aliens_x):
-        alien = Alien(f_settings, screen)
-        alien.x = alien.rect.width + 2 * alien.rect.width * alien_number
-        alien.rect.x = alien.x
-        aliens.add(alien)
+def create_aliens(f_settings, screen, aliens, alien_number, row_number):
+    """Create an alien and place it in the row"""
+    alien = Alien(f_settings, screen)
+    alien_width = alien.rect.width
+    alien.x = alien_width + 2 * alien_width * alien_number
+    alien.rect.x = alien.x
+    alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
+    aliens.add(alien)
+
+def get_number_alien_row(f_settings, alien_height, fighter_height):
+    """Determine the number of row of aliens that fit in the screen"""
+    available_space_y = f_settings.screen_height - fighter_height - 3 * alien_height
+    number_rows = available_space_y / (2 * alien_height)
+    return number_rows
+
+def check_fleet_edges(f_settings, aliens):
+    """Respond correctly when reach the edge"""
+    for alien in aliens.sprites():
+        if alien.check_edge():
+            change_fleet_direction(f_settings, aliens)
+            break
+
+def change_fleet_direction(f_settings, aliens):
+    """Drop the entire fleet and change the fleet direction"""
+    for alien in aliens.sprites():
+        alien.rect.y += f_settings.fleet_drop_speed
+    f_settings.fleet_direction *= -1
