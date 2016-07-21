@@ -3,7 +3,7 @@ class Setting():
     def __init__(self):
         """initialize the game's setting"""
         # screen setting
-        self.screen_width = 1280
+        self.screen_width = 1200
         self.screen_height = 768
         self.screen_color = (230, 230, 230)
 
@@ -16,3 +16,5 @@ class Setting():
         self.bullet_width = 3
         self.bullet_color = (50, 50, 50)
         self.bullet_allowed = 3
+
+        #
