@@ -8,7 +8,8 @@ class Setting():
         self.screen_color = (230, 230, 230)
 
         # fighter's setting
-        self.speed = 3
+        self.speed = 6
+        self.fighter_limit = 3
 
         # bullets setting
         self.bullet_speed = 10

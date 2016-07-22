@@ -56,7 +56,7 @@ def screen_update(f_settings, screen, fighter, bullets, aliens):
     # Make the most recently drawn screen visible.
     pygame.display.flip()
 
-def update_bullets(bullets):
+def update_bullets(f_settings, screen, fighter, bullets, aliens):
     """Update position of bullets and get rid of old bullets"""
     """Update bullets position"""
     bullets.update()
@@ -66,10 +66,16 @@ def update_bullets(bullets):
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
 
-def update_aliens(f_settings, aliens):
+    check_bullet_alien_collision(f_settings, screen, fighter, bullets, aliens)
+
+def update_aliens(f_settings, aliens, fighter):
     """Check if the fleet is at the edge and update aliens position"""
     check_fleet_edges(f_settings, aliens)
     aliens.update(f_settings)
+
+    #If aliens collide with fighter, end the game
+    if pygame.sprite.spritecollideany(fighter, aliens):
+        print "Fighter hit !!"
 
 def fire_bullets(f_settings, screen, fighter, bullets):
     """Fire a bullet if the limit is not reached"""
@@ -128,3 +134,15 @@ def change_fleet_direction(f_settings, aliens):
     for alien in aliens.sprites():
         alien.rect.y += f_settings.fleet_drop_speed
     f_settings.fleet_direction *= -1
+
+def check_bullet_alien_collision(f_settings, screen, fighter, bullets, aliens):
+    # Check if bullets collide with aliens
+    # If so, get rid of both
+    collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+
+    # Repopulate the fleet of aliens
+    if len(aliens) == 0:
+        # Get rid of all bullets once aliens are all destroyed
+        bullets.empty()
+        # regenerate aliens
+        create_fleet(f_settings, screen, aliens, fighter)
