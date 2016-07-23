@@ -4,8 +4,10 @@ class GamesStats():
     def __init__(self, f_settings):
         self.f_settings = f_settings
         self.reset_stats()
-
+        # Start Alien_Attack in an inactive state
+        self.game_active = False
     def reset_stats(self):
         """Initialize the stats that can change during the game"""
         self.fighter_left = self.f_settings.fighter_limit
+
 

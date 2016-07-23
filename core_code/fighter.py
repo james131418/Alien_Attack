@@ -39,6 +39,11 @@ class Fighter():
         self.rect.centerx = self.center
         self.rect.bottom = self.up_down
 
+    def center_bottom_fighter(self):
+        """Recenter the fighter"""
+        self.center = self.screen_rect.centerx
+        self.up_down = self.screen_rect.bottom
+
     def blitme(self):
         """Draw the fighter at its current location"""
         self.screen.blit(self.image, self.rect)

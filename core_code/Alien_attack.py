@@ -6,6 +6,7 @@ from alien import Alien
 import game_function as gf
 from pygame.sprite import Group
 from game_stats import GamesStats
+from button import Button
 
 def run_game():
     # initialize game and create a screen object
@@ -17,7 +18,10 @@ def run_game():
     fighter = Fighter(f_settings, screen)
     aliens = Group()
     bullets = Group()
-    #TODO
+
+    # Create play button
+    play_button = Button(f_settings, screen, "Play")
+
     # Create an instance to store game stats
     stats = GamesStats(f_settings)
 
@@ -26,10 +30,11 @@ def run_game():
 
     # Start the main loop for the game.
     while True:
-        gf.check_events(f_settings, screen, fighter, bullets)
-        fighter.position()
-        gf.update_bullets(f_settings, screen, fighter, bullets, aliens)
-        gf.update_aliens(f_settings, aliens, fighter)
-        gf.screen_update(f_settings, screen, fighter, bullets, aliens)
+        gf.check_events(f_settings, screen, aliens, fighter, bullets, play_button, stats)
+        if stats.game_active:
+            fighter.position()
+            gf.update_bullets(f_settings, screen, fighter, bullets, aliens)
+            gf.update_aliens(f_settings, screen, aliens, fighter, bullets, stats)
+        gf.screen_update(f_settings, screen, fighter, bullets, aliens, stats, play_button)
 
 run_game()

@@ -2,8 +2,10 @@ import sys
 import pygame
 from bullet import Bullet
 from alien import Alien
+from time import sleep
 
-def check_events(f_settings, screen, fighter, bullets):
+
+def check_events(f_settings, screen, aliens, fighter, bullets, play_button, stats):
     """Respond to event"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -12,7 +14,9 @@ def check_events(f_settings, screen, fighter, bullets):
             check_keydown_events(event, f_settings, screen, fighter, bullets)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, fighter)
-
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            check_play_button(f_settings, screen, aliens, fighter, bullets, play_button, stats, mouse_x, mouse_y)
 
 
 def check_keydown_events(event, f_settings, screen, fighter, bullets):
@@ -45,7 +49,7 @@ def check_keyup_events(event, fighter):
     elif event.key == pygame.K_DOWN:
         fighter.move_down = False
 
-def screen_update(f_settings, screen, fighter, bullets, aliens):
+def screen_update(f_settings, screen, fighter, bullets, aliens, stats, play_button):
     """Update images on the screen and flip to the new screen"""
     # Redraw the screen during each pass through the loop
     screen.fill(f_settings.screen_color)
@@ -53,6 +57,8 @@ def screen_update(f_settings, screen, fighter, bullets, aliens):
         bullet.draw_bullet()
     fighter.blitme()
     aliens.draw(screen)
+    if not stats.game_active:
+        play_button.draw_button()
     # Make the most recently drawn screen visible.
     pygame.display.flip()
 
@@ -65,16 +71,19 @@ def update_bullets(f_settings, screen, fighter, bullets, aliens):
     for bullet in bullets.copy():
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
-
     check_bullet_alien_collision(f_settings, screen, fighter, bullets, aliens)
 
-def update_aliens(f_settings, aliens, fighter):
+def update_aliens(f_settings, screen, aliens, fighter, bullets, stats):
     """Check if the fleet is at the edge and update aliens position"""
     check_fleet_edges(f_settings, aliens)
     aliens.update(f_settings)
 
-    #If aliens collide with fighter, end the game
+    # If aliens reach the bottom, end the game
+    check_aliens_bottom(f_settings, screen, aliens, bullets, fighter, stats)
+
+    #If aliens collide with fighter, reduce fighter's limit numbers
     if pygame.sprite.spritecollideany(fighter, aliens):
+        fighter_hit(f_settings, screen, aliens, bullets, fighter, stats)
         print "Fighter hit !!"
 
 def fire_bullets(f_settings, screen, fighter, bullets):
@@ -146,3 +155,43 @@ def check_bullet_alien_collision(f_settings, screen, fighter, bullets, aliens):
         bullets.empty()
         # regenerate aliens
         create_fleet(f_settings, screen, aliens, fighter)
+
+def fighter_hit(f_settings, screen, aliens, bullets, fighter, stats):
+    """Respond to fighter hit by aliens"""
+    if stats.fighter_left > 0:
+        # Decrement fighter left
+        stats.fighter_left -= 1
+        # Empty the aliens and bullets
+        aliens.empty()
+        bullets.empty()
+        # Regenerate the fleet of aliens
+        create_fleet(f_settings, screen, aliens, fighter)
+        fighter.center_bottom_fighter()
+        # Pause.
+        sleep(1)
+    else:
+        stats.game_active = False
+
+def check_aliens_bottom(f_settings, screen, aliens, bullets, fighter, stats):
+    """Check if aliens reach the bottom"""
+    screen_rect = screen.get_rect()
+    for alien in aliens.sprites():
+        if alien.rect.bottom >= screen_rect.bottom:
+            # Treat as fighter gets hit by aliens
+            fighter_hit(f_settings, screen, aliens, bullets, fighter, stats)
+            break
+
+def check_play_button(f_settings, screen, aliens, fighter, bullets, play_button, stats, mouse_x, mouse_y):
+    "Start game when clicking play button"
+    if play_button.rect.collidepoint(mouse_x, mouse_y):
+        # Reseting the game
+        stats.reset_stats()
+        stats.game_active = True
+
+        # Empty bulltes and aliens
+        aliens.empty()
+        bullets.empty()
+
+        # Create new fleet of aliens and center fighter
+        create_fleet(f_settings, screen, aliens, fighter)
+        fighter.center_bottom_fighter()
