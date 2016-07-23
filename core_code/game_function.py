@@ -195,3 +195,6 @@ def check_play_button(f_settings, screen, aliens, fighter, bullets, play_button,
         # Create new fleet of aliens and center fighter
         create_fleet(f_settings, screen, aliens, fighter)
         fighter.center_bottom_fighter()
+
+        #TODO
+        #Deactivate play button
