@@ -38,3 +38,8 @@ def run_game():
         gf.screen_update(f_settings, screen, fighter, bullets, aliens, stats, play_button)
 
 run_game()
+
+
+#TODO
+# leveling up
+# score board

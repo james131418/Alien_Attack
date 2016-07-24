@@ -11,7 +11,7 @@ def check_events(f_settings, screen, aliens, fighter, bullets, play_button, stat
         if event.type == pygame.QUIT:
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, f_settings, screen, fighter, bullets)
+            check_keydown_events(event, f_settings, screen, fighter, bullets, stats, aliens)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, fighter)
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -19,7 +19,7 @@ def check_events(f_settings, screen, aliens, fighter, bullets, play_button, stat
             check_play_button(f_settings, screen, aliens, fighter, bullets, play_button, stats, mouse_x, mouse_y)
 
 
-def check_keydown_events(event, f_settings, screen, fighter, bullets):
+def check_keydown_events(event, f_settings, screen, fighter, bullets, stats, aliens):
     """respond to keypress"""
     if event.key == pygame.K_RIGHT:
         # Move the fighter to the right.
@@ -37,6 +37,8 @@ def check_keydown_events(event, f_settings, screen, fighter, bullets):
         fire_bullets(f_settings, screen, fighter, bullets)
     elif event.key == pygame.K_q:
         sys.exit()
+    elif event.key == pygame.K_p:
+        start_game(f_settings, screen, aliens, fighter, stats, bullets)
 
 def check_keyup_events(event, fighter):
     """respond to keyreleases"""
@@ -171,6 +173,7 @@ def fighter_hit(f_settings, screen, aliens, bullets, fighter, stats):
         sleep(1)
     else:
         stats.game_active = False
+        pygame.mouse.set_visible(True)
 
 def check_aliens_bottom(f_settings, screen, aliens, bullets, fighter, stats):
     """Check if aliens reach the bottom"""
@@ -183,7 +186,10 @@ def check_aliens_bottom(f_settings, screen, aliens, bullets, fighter, stats):
 
 def check_play_button(f_settings, screen, aliens, fighter, bullets, play_button, stats, mouse_x, mouse_y):
     "Start game when clicking play button"
-    if play_button.rect.collidepoint(mouse_x, mouse_y):
+    play_button_click = play_button.rect.collidepoint(mouse_x, mouse_y)
+    if play_button_click and not stats.game_active:
+        # Hide mouse cursor
+        pygame.mouse.set_visible(False)
         # Reseting the game
         stats.reset_stats()
         stats.game_active = True
@@ -196,5 +202,18 @@ def check_play_button(f_settings, screen, aliens, fighter, bullets, play_button,
         create_fleet(f_settings, screen, aliens, fighter)
         fighter.center_bottom_fighter()
 
-        #TODO
-        #Deactivate play button
+
+def start_game(f_settings, screen, aliens, fighter, stats, bullets):
+    "Start game when pressing P"
+    pygame.mouse.set_visible(False)
+    # Reseting the game
+    stats.reset_stats()
+    stats.game_active = True
+
+    # Empty bulltes and aliens
+    aliens.empty()
+    bullets.empty()
+
+    # Create new fleet of aliens and center fighter
+    create_fleet(f_settings, screen, aliens, fighter)
+    fighter.center_bottom_fighter()
