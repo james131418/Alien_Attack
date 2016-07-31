@@ -1,5 +1,7 @@
 # Welcome to Alien_Attack ! A classic game of all time
 
+## Launch Alien_Attack.py to start the game.
+
 ## Languages
 - Python
 
