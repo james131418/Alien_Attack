@@ -7,6 +7,7 @@ import game_function as gf
 from pygame.sprite import Group
 from game_stats import GamesStats
 from button import Button
+from scoreboard import Scoreboard
 
 def run_game():
     # initialize game and create a screen object
@@ -28,18 +29,20 @@ def run_game():
     # Create the fleet of aliens
     gf.create_fleet(f_settings, screen, aliens, fighter)
 
+    # Create scoreboard
+    sb = Scoreboard(f_settings, screen, stats, fighter)
+
     # Start the main loop for the game.
     while True:
-        gf.check_events(f_settings, screen, aliens, fighter, bullets, play_button, stats)
+        gf.check_events(f_settings, screen, aliens, fighter, bullets, play_button, stats, sb)
         if stats.game_active:
             fighter.position()
-            gf.update_bullets(f_settings, screen, fighter, bullets, aliens)
-            gf.update_aliens(f_settings, screen, aliens, fighter, bullets, stats)
-        gf.screen_update(f_settings, screen, fighter, bullets, aliens, stats, play_button)
+            gf.update_bullets(f_settings, screen, stats, fighter, bullets, aliens, sb)
+            gf.update_aliens(f_settings, screen, aliens, fighter, bullets, stats, sb)
+        gf.screen_update(f_settings, screen, fighter, bullets, aliens, stats, play_button, sb)
 
 run_game()
 
 
 #TODO
 # leveling up
-# score board

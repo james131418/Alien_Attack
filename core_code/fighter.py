@@ -1,8 +1,10 @@
 import pygame
+from pygame.sprite import Sprite
 
-class Fighter():
+class Fighter(Sprite):
     def __init__(self, f_settings, screen):
         """Initialize the ship and set its starting position."""
+        super(Fighter, self).__init__()
         self.screen = screen
         self.f_settings = f_settings
 
